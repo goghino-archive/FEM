@@ -6,7 +6,7 @@ Lectures given by Drosos Kourounis, in USI, Lugano.
 * Introduction to FEM
 
 ### How do I get set up? ###
-* 
+* git clone should work
 * Students should use it to submit assignments.
 
 ### Contribution guidelines ###
