@@ -76,6 +76,7 @@ legend('Euclidean','L2','H1');
 xlabel('Discretization NxN')
 ylabel('Error Norm')
 
+figure();
 loglog(discretizations,times,'+-')
 legend('Assembly','Solution');
 xlabel('Discretization NxN')
