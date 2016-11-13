@@ -1,0 +1,81 @@
+\documentclass[unicode,11pt,a4paper,oneside,numbers=endperiod,openany]{scrartcl}
+
+\usepackage{assignment}
+\usepackage{textcomp}
+\hyphenation{PageRank}
+\hyphenation{PageRanks}
+
+
+\begin{document}
+
+\setassignment
+\setduedate{Monday 10 October 2016}
+\serieheader{
+Software Atelier: Differential Equations}{Academic Year 2016/2017}{Instructor: Dr. Drosos Kourounis}{TA: Hardik Kothari}{Assignment 2 - Reading assignment}{}
+\newline
+
+
+\begin{center}
+\begin{tabular}{rc}
+Name: Juraj Kardos  & \rule{5cm}{0.0pt} \\
+Discussed with: Mr. Nobody & \rule{5cm}{0.0pt} 
+\end{tabular}
+\end{center}
+
+
+
+\section{section 1}
+Given the problem 
+\begin{equation}
+    -\Delta u + u = f \text{ in } \Omega
+\end{equation}
+
+subject to Dirichlet BC
+\begin{equation}
+    u = u_0 \text{ on } \partial \Omega_D
+\end{equation}
+
+and the Neumann BC
+\begin{equation}
+    \nabla u \cdot n = g \text{ on } \partial \Omega_N
+\end{equation}
+
+we project the problem into the function space of the test function $v$,
+that is multiply the equation by the test function and integrate over the
+domain:
+
+\begin{equation}
+    \int_{\Omega} (-\Delta u + u) v \ d\Omega = \int_{\Omega} f v \ d\Omega.
+    \label{eq:projection}
+\end{equation}
+
+We apply integration by parts on the LHS of the equation (\ref{eq:projection}):
+
+\begin{equation}
+    \int_{\Omega} (-\Delta u + u) v \ d\Omega =
+    - \int_{\Omega} \nabla ( v \nabla u) \ d\Omega -
+    \int_{\Omega} ( \nabla v \nabla u) \ d\Omega +
+    \int_{\Omega} v u \ d\Omega.
+    \label{eq:perPartes}
+\end{equation}
+
+We further apply Gauss theorem on the first RHS term in equation (\ref{eq:perPartes})
+and use Neumann BC:
+\begin{equation}
+    - \int_{\Omega} \nabla ( v \nabla u) \ d\Omega = 
+    - \int_{\partial \Omega} ( v \nabla u) n \ d\partial\Omega =
+    - \int_{\partial \Omega} v g \ d\partial\Omega.
+    \label{eq:gauss}
+\end{equation}
+
+Substituting (\ref{eq:gauss}) back into (\ref{eq:perPartes}) and (\ref{eq:projection})
+we obtain:
+\begin{equation}
+    \int_{\Omega} (- \nabla v \nabla u + uv) \ d\Omega = 
+    \int_{\Omega} f v \ d\Omega + \int_{\partial \Omega}  v g \ d\partial\Omega,
+\end{equation}
+
+which is the weak formulation of the original problem.
+
+
+\end{document}
