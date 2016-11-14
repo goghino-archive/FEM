@@ -1,11 +1,11 @@
-discretizations = 20:10:20;
+discretizations = [10 20 40 80];
 error = zeros(size(discretizations,1),3);
 i = 1;
 
 for N = discretizations
     %% generate the grid
-    %mesh = makeGrid(1,1,N,N,'triangles');
-    mesh = makeGrid(1,1,N,N,'quadrilaterals');
+    mesh = makeGrid(1,1,N,N,'triangles');
+    %mesh = makeGrid(1,1,N,N,'quadrilaterals');
 
     %% create FEM operators 
     [M, K, b] = assembleDiscreteOperators(mesh);
@@ -21,7 +21,9 @@ for N = discretizations
     boundaryPoints = find(markers);
 
     K(boundaryPoints,:) = 0;
-    K(boundaryPoints,boundaryPoints) = diag(ones(size(boundaryPoints,1),1)); %diagonal
+    for p = boundaryPoints'
+        K(p,p) = 1; %diagonal
+    end
 
     X = mesh.Points(boundaryPoints,1);
     Y = mesh.Points(boundaryPoints,2);
@@ -34,10 +36,9 @@ for N = discretizations
     X = mesh.Points(:,1);
     Y = mesh.Points(:,2);
     u = u0(X,Y);
-    [u_h u u-u_h]
 
     %% visualize solution
-    writeMeshToVTKFile(mesh, u_h, 'solution')
+    %writeMeshToVTKFile(mesh, u_h, 'solution')
    
     %% Error norms
     error(i, 1) = sqrt( (u - u_h)' * (u - u_h) ); % euclidian norm
@@ -47,7 +48,7 @@ for N = discretizations
 
 end
 
-plot(discretizations,error,'+-')
+loglog(discretizations,error,'+-')
 legend('Euclidean','L2','H1');
 xlabel('Discretization NxN')
 ylabel('Error Norm')
