@@ -6,10 +6,10 @@
 % GOTO -> f.m
 clear all;
 
-discretizations = [10 20 40 80];
+discretizations = [10 15];
 error = zeros(size(discretizations,1),3);
 times = zeros(size(discretizations,1),2);
-idx = 1;
+iter = 1;
 
 for N = discretizations
     %% generate 3D hexa-hedron grid
@@ -19,7 +19,7 @@ for N = discretizations
     tstart = tic;
     %[M, K, b] = assembleDiscreteOperators(mesh);
     [M,K,b] = assembleFast(mesh);
-    times(idx,1) = toc(tstart);
+    times(iter,1) = toc(tstart);
     
     K_noBoundary = K;
 
@@ -31,25 +31,33 @@ for N = discretizations
 
     I = find(mesh.PointMarkersDiri);
 
-    K(I,:) = 0;
     for i = 1:length(I);
-      K(I(i),I(i)) = 1.0;
-    end
+      idx = I(i);    
 
-    X = mesh.Points(I,1);
-    Y = mesh.Points(I,2);
-    Z = mesh.Points(I,3);
-    b(I) = u0(X,Y,Z);
+      X = mesh.Points(idx,1);
+      Y = mesh.Points(idx,2);
+      Z = mesh.Points(idx,3);
+    
+      %fix matrix to keep symetry after applying dirichlet BC
+      %that is, move it to RHS
+      b = b - K(:,idx)*u0(X,Y,Z);
+      b(idx) = u0(X,Y,Z);
+      
+      K(idx,:) = 0;
+      K(:,idx) = 0;
+      K(idx,idx) = 1.0;
+    end
+    
     
     %% impose boundary conditions for Neumann boundaries
     % it means adding some term to RHS (implied by weak formulation, where
     % Neumann BC shows up) but since it is zero in this specific case
     % it does not change RHS
 
-    %% solve
+    %% solve using iterative method (instead of direct solve u_h = K\b)
     tstart = tic;
-    u_h = K\b;
-    times(idx,2) = toc(tstart);
+    u_h = pcg(K,b,1e-10,1000);
+    times(iter,2) = toc(tstart);
 
     %% create exact solution
     X = mesh.Points(:,1);
@@ -62,12 +70,12 @@ for N = discretizations
     %writeMeshToVTKFile(mesh, u_h, 'FEMsolution');
    
     %% Error norms
-    error(idx, 1) = sqrt( (u - u_h)' * (u - u_h) ); % euclidian norm
-    error(idx, 2) = sqrt( (u - u_h)' * M * (u - u_h) ); % L2 norm
-    fprintf('L2 norm %f for grid size %dx%dx%d\n', error(idx, 2), N, N, N);
-    error(idx, 3) = sqrt((u - u_h)' * M * (u - u_h) + (u - u_h)' * K_noBoundary * (u - u_h)); %H1 norm
-    fprintf('H1 norm %f for grid size %dx%dx%d\n\n', error(idx, 3), N, N, N);
-    idx = idx+1;
+    error(iter, 1) = sqrt( (u - u_h)' * (u - u_h) ); % euclidian norm
+    error(iter, 2) = sqrt( (u - u_h)' * M * (u - u_h) ); % L2 norm
+    fprintf('L2 norm %f for grid size %dx%dx%d\n', error(iter, 2), N, N, N);
+    error(iter, 3) = sqrt((u - u_h)' * M * (u - u_h) + (u - u_h)' * K_noBoundary * (u - u_h)); %H1 norm
+    fprintf('H1 norm %f for grid size %dx%dx%d\n\n', error(iter, 3), N, N, N);
+    iter = iter+1;
 
 end
 
